@@ -30,6 +30,7 @@
     "test:watch": "karma start karma.conf.js"
   },
   "devDependencies": {
+    "artifactory-api": "0.0.3",
     "grunt": "^1.0.1",
     "grunt-contrib-compress": "^1.4.3",
     "grunt-contrib-requirejs": "^1.0.0",
