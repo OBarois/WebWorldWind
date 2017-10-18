@@ -17,13 +17,13 @@ if (!process.env.FILES_API_KEY) {
 var artifactory = new ArtifactoryAPI("https://files.worldwind.arc.nasa.gov/", process.env.FILES_API_KEY);
 
 // upload files
-artifactory.uploadFile("generic-local", "/" + version + "/worldwind.min.js", "worldwind.min.js", false)
+artifactory.uploadFile("web", "/" + version + "/worldwind.min.js", "worldwind.min.js", false)
     .then(console.log)
     .catch(console.error);
-artifactory.uploadFile("generic-local", "/" + version + "/worldwind.js", "worldwind.js", false)
+artifactory.uploadFile("web", "/" + version + "/worldwind.js", "worldwind.js", false)
     .then(console.log)
     .catch(console.error);
-artifactory.uploadFile("generic-local", "/" + version + "/images.zip", "images.zip", false)
+artifactory.uploadFile("web", "/" + version + "/images.zip", "images.zip", false)
     .then(console.log)
     .catch(console.error);
 recursive("images", function (err, files) {
@@ -35,7 +35,7 @@ recursive("images", function (err, files) {
     for (var i = 0, len = files.length; i < len; i++) {
         var file = files[i];
         console.log("Uploading " + file + "...");
-        artifactory.uploadFile("generic-local", "/" + version + "/" + file, file, false)
+        artifactory.uploadFile("web", "/" + version + "/" + file, file, false)
             .then(console.log)
             .catch(console.error);
     }
