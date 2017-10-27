@@ -6,10 +6,22 @@
  * @version $Id: BasicExample.js 3320 2015-07-15 20:53:05Z dcollins $
  */
 
-requirejs(['../src/WorldWind',
-        './LayerManager'],
-    function (ww,
-              LayerManager) {
+requirejs.config({
+    paths: {
+        'bootstrap': 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js',
+        'jquery': 'https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js',
+        'worldwind': '../worldwind.min'
+    },
+    shim: {
+        "bootstrap": {
+            deps: ["jquery"],
+            exports: "$.fn.popover"
+        }
+    }
+});
+
+requirejs(['worldwind', './LayerManager'],
+    function (WorldWind, LayerManager) {
         "use strict";
 
         WorldWind.Logger.setLoggingLevel(WorldWind.Logger.LEVEL_WARNING);
@@ -34,4 +46,4 @@ requirejs(['../src/WorldWind',
 
         // Create a layer manager for controlling layer visibility.
         var layerManger = new LayerManager(wwd);
-    });
+});
