@@ -8,14 +8,13 @@
 
 requirejs.config({
     paths: {
-        'bootstrap': 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js',
-        'jquery': 'https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js',
+        'bootstrap': 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min',
+        'jquery': 'https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min',
         'worldwind': '../worldwind.min'
     },
     shim: {
         "bootstrap": {
-            deps: ["jquery"],
-            exports: "$.fn.popover"
+            deps: ["jquery"]
         }
     }
 });

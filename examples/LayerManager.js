@@ -5,7 +5,7 @@
 /**
  * @exports LayerManager
  */
-define(function () {
+define(['bootstrap'], function (bootstrap) {
     "use strict";
 
     /**
