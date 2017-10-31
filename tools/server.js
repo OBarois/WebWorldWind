@@ -1,3 +1,7 @@
+/**
+ * A simple static file server for demonstrating the Examples.
+ */
+
 var express = require('express');
 
 var port = process.env.PORT | 3000;

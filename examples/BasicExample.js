@@ -45,4 +45,12 @@ requirejs(['worldwind', './LayerManager'],
 
         // Create a layer manager for controlling layer visibility.
         var layerManger = new LayerManager(wwd);
+    },
+    // Error detection to communicate the library may not have been built
+    function (err) {
+        //The error has a list of modules that failed
+        var failedId = err.requireModules && err.requireModules[0];
+        if (failedId === 'worldwind') {
+            alert("The compiled WorldWind library was not found. Try building the library: `npm run build` or using the watch command `npm run watch`.");
+        }
 });
