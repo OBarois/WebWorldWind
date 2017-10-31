@@ -27,6 +27,9 @@
     "build": "grunt",
     "test": "grunt karma",
     "doc": "grunt jsdoc",
+    "server": "node tools/server.js",
+    "server:watch": "npm-run-all --parallel server build:watch",
+    "build:watch": "node tools/watcher.js",
     "test:watch": "karma start karma.conf.js"
   },
   "files": [
@@ -36,6 +39,7 @@
     "worldwind.min.js"
   ],
   "devDependencies": {
+    "express": "^4.16.2",
     "grunt": "^1.0.1",
     "grunt-contrib-compress": "^1.4.3",
     "grunt-contrib-requirejs": "^1.0.0",
@@ -49,7 +53,9 @@
     "karma-junit-reporter": "^1.2.0",
     "karma-phantomjs-launcher": "^1.0.2",
     "karma-requirejs": "^1.1.0",
-    "recursive-readdir": "^2.2.1"
+    "npm-run-all": "^4.1.1",
+    "recursive-readdir": "^2.2.1",
+    "requirejs": "^2.3.5"
   },
   "keywords": [
     "sdk",
