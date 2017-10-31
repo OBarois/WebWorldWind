@@ -6,20 +6,7 @@
  * @version $Id: BasicExample.js 3320 2015-07-15 20:53:05Z dcollins $
  */
 
-requirejs.config({
-    paths: {
-        'bootstrap': 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min',
-        'jquery': 'https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min',
-        'worldwind': '../worldwind.min'
-    },
-    shim: {
-        "bootstrap": {
-            deps: ["jquery"]
-        }
-    }
-});
-
-requirejs(['worldwind', './LayerManager'],
+requirejs(['worldwind', 'layermanager'],
     function (WorldWind, LayerManager) {
         "use strict";
 
@@ -48,6 +35,7 @@ requirejs(['worldwind', './LayerManager'],
     },
     // Error detection to communicate the library may not have been built
     function (err) {
+        console.log(JSON.stringify(err));
         //The error has a list of modules that failed
         var failedId = err.requireModules && err.requireModules[0];
         if (failedId === 'worldwind') {
