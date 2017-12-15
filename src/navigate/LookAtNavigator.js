@@ -153,6 +153,11 @@ define([
             // Intentionally not documented.
             this.beginPoint = new Vec2(0, 0);
             this.lastPoint = new Vec2(0, 0);
+            this.lastDegrees = new Vec2(0, 0);
+            this.lastLookAtLocation = new Location(0,0);
+            this.deltaLookAtLocation = new Location(0,0);
+            this.lastTimeStamp = null;
+            this.endlessMove = false;
             this.beginHeading = 0;
             this.beginTilt = 0;
             this.beginRange = 0;
