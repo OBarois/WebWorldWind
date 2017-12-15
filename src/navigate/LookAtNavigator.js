@@ -191,10 +191,14 @@ define([
         LookAtNavigator.prototype.handlePanOrDrag3D = function (recognizer) {
             var state = recognizer.state,
                 tx = recognizer.translationX,
-                ty = recognizer.translationY;
+                ty = recognizer.translationY,
+                thisNavigator = this,
+                thisRecognizer = recognizer;
 
             if (state == WorldWind.BEGAN) {
                 this.lastPoint.set(0, 0);
+                // If a long click occured before the move started, inertia will be endless
+                this.endlessMove = (recognizer.timeStamp - recognizer.startTime > 1000);
             } else if (state == WorldWind.CHANGED) {
                 // Convert the translation from screen coordinates to arc degrees. Use this navigator's range as a
                 // metric for converting screen pixels to meters, and use the globe's radius for converting from meters
@@ -216,9 +220,56 @@ define([
                 this.lookAtLocation.latitude += forwardDegrees * cosHeading - sideDegrees * sinHeading;
                 this.lookAtLocation.longitude += forwardDegrees * sinHeading + sideDegrees * cosHeading;
                 this.lastPoint.set(tx, ty);
+                this.lastTimeStamp = recognizer.timeStamp;
+                this.lastDegrees.set(forwardDegrees,sideDegrees);
                 this.applyLimits();
                 this.worldWindow.redraw();
+            } else if (state == WorldWind.ENDED) {
+                // Do not trigger the inertia if they was no move at the end of the gesture
+                if(recognizer.timeStamp - this.lastTimeStamp > 100) return;
+
+                // if shift key is pressed, PanOrDrag is constrained around the earth N/S axis
+                // ToDO: Does not work if globe is tilted
+                if (recognizer.shiftKey) {
+                    this.lastDegrees[0] = 0;
+                }
+
+                var position = {tx:this.lastDegrees[0],ty:this.lastDegrees[1]};
+                var target = {tx:0, ty:0};
+
+                var tween = new TWEEN.Tween(position)
+                    .to(target, 1500)
+                    .easing(TWEEN.Easing.Sinusoidal.Out)
+                    .onComplete(function(){
+                        cancelAnimationFrame(thisRecognizer.animationId);
+                    })
+                    .start();
+
+                animate();
+                
+                function animate() {
+                    
+
+                    // Apply the change in latitude and longitude to this navigator, relative to the current heading.
+                    var sinHeading = Math.sin(thisNavigator.heading * Angle.DEGREES_TO_RADIANS),
+                        cosHeading = Math.cos(thisNavigator.heading * Angle.DEGREES_TO_RADIANS);
+                    thisNavigator.lookAtLocation.latitude += position.tx * cosHeading - position.ty * sinHeading;
+                    thisNavigator.lookAtLocation.longitude += position.tx * sinHeading + position.ty * cosHeading;
+                    //thisNavigator.lastPoint.set(position.tx, position.ty);
+                    if (!thisNavigator.endlessMove) thisNavigator.applyLimits();
+                    thisNavigator.worldWindow.redraw();
+
+                    recognizer.animationId = requestAnimationFrame(animate);
+                    if (!thisNavigator.endlessMove) {
+                        TWEEN.update();
+                    }
+
+                }
+
             }
+
+
+
         };
 
         // Intentionally not documented.
@@ -227,17 +278,22 @@ define([
                 x = recognizer.clientX,
                 y = recognizer.clientY,
                 tx = recognizer.translationX,
-                ty = recognizer.translationY;
+                ty = recognizer.translationY
+                thisNavigator = this,
+                thisRecognizer = recognizer;
 
             if (state == WorldWind.BEGAN) {
                 this.beginPoint.set(x, y);
                 this.lastPoint.set(x, y);
+                // If a long click occured before the move started, inertia will be endless
+                this.endlessMove = (recognizer.timeStamp - recognizer.startTime > 1000);
             } else if (state == WorldWind.CHANGED) {
                 var x1 = this.lastPoint[0],
                     y1 = this.lastPoint[1],
                     x2 = this.beginPoint[0] + tx,
                     y2 = this.beginPoint[1] + ty;
                 this.lastPoint.set(x2, y2);
+                this.lastTimeStamp = recognizer.timeStamp;
 
                 var navState = this.currentState(),
                     globe = this.worldWindow.globe,
@@ -272,11 +328,50 @@ define([
                 this.lookAtLocation.copy(params.origin);
                 this.range = params.range;
                 this.heading = params.heading;
+                this.deltaLookAtLocation.latitude = this.lastLookAtLocation.latitude - this.lookAtLocation.latitude;
+                this.deltaLookAtLocation.longitude = this.lastLookAtLocation.longitude - this.lookAtLocation.longitude;
+                this.lastLookAtLocation.latitude = this.lookAtLocation.latitude;
+                this.lastLookAtLocation.longitude = this.lookAtLocation.longitude;    
                 this.tilt = params.tilt;
                 this.roll = params.roll;
                 this.applyLimits();
                 this.worldWindow.redraw();
+            } else if (state == WorldWind.ENDED) {
+
+                // Do not trigger the inertia if they was no move at the end of the gesture 
+                if(recognizer.timeStamp - this.lastTimeStamp > 100) return;
+                
+                var position = {
+                    tx:this.deltaLookAtLocation.latitude,
+                    ty:this.deltaLookAtLocation.longitude
+                };
+                var target = {tx:0, ty:0};
+    
+                var tween = new TWEEN.Tween(position)
+                    .to(target, 1500)
+                    .easing(TWEEN.Easing.Sinusoidal.Out)
+                    .onComplete(function(){
+                        cancelAnimationFrame(thisRecognizer.animationId);
+                    })
+                    .start();
+    
+                animate();
+                
+                function animate() {
+                    
+                    //console.log("tx/ty: "+position.tx+"/"+position.ty);
+                    thisNavigator.lookAtLocation.latitude -= position.tx;
+                    thisNavigator.lookAtLocation.longitude -= position.ty;
+                    thisNavigator.applyLimits();
+                    thisNavigator.worldWindow.redraw();
+                    recognizer.animationId = requestAnimationFrame(animate);
+                    if (!thisNavigator.endlessMove) {
+                        TWEEN.update();
+                    }
+    
+                }
             }
+    
         };
 
         // Intentionally not documented.
