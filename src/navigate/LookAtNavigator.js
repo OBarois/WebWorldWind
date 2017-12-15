@@ -31,6 +31,7 @@ define([
         '../geom/Position',
         '../gesture/RotationRecognizer',
         '../gesture/TiltRecognizer',
+        '../util/Tween',
         '../geom/Vec2',
         '../geom/Vec3',
         '../util/WWMath'
