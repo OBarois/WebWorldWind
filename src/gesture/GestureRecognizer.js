@@ -93,6 +93,15 @@ define([
             // Documented with its property accessor below.
             this._mouseButtonMask = 0;
 
+            // Documented with its property accessor below.
+            this._shiftKey = false;
+            
+            // Documented with its property accessor below.
+            this._timeStamp = 0;
+            
+            // Documented with its property accessor below.
+            this._startTime = 0;
+
             // Intentionally not documented.
             this._touches = [];
 
@@ -250,6 +259,43 @@ define([
                     return this._touches.length;
                 }
             },
+
+            /**
+             * Indicates if the shift Key is pressed during the gesture.
+             * @type {boolean}
+             * @readonly
+             * @memberof GestureRecognizer.prototype
+             */
+            shiftKey: {
+                get: function () {
+                    return this._shiftKey;
+                }
+            },
+
+            /**
+             * Indicates the time stamp of the last event thrown by the gesture.
+             * @type {boolean}
+             * @readonly
+             * @memberof GestureRecognizer.prototype
+             */
+            timeStamp: {
+                get: function () {
+                    return this._timeStamp;
+                }
+            },
+
+            /**
+             * Indicates the start time of the gesture.
+             * @type {boolean}
+             * @readonly
+             * @memberof GestureRecognizer.prototype
+             */
+            startTime: {
+                get: function () {
+                    return this._startTime;
+                }
+            },
+
 
             /**
              * The list of functions to call when this gesture is recognized. The functions have a single argument:
@@ -601,6 +647,8 @@ define([
                 this._clientStartY = event.clientY;
                 this._translationX = 0;
                 this._translationY = 0;
+                this._timeStamp = event.timeStamp;
+                this._startTime = event.timeStamp;
             }
 
             this._mouseButtonMask |= buttonBit;
@@ -622,6 +670,7 @@ define([
                 w = this._translationWeight;
             this._clientX = event.clientX;
             this._clientY = event.clientY;
+            this._timeStamp = event.timeStamp;
             this._translationX = this._translationX * (1 - w) + dx * w;
             this._translationY = this._translationY * (1 - w) + dy * w;
             this.mouseMove(event);
@@ -656,6 +705,8 @@ define([
                 this._translationY = 0;
                 this._touchCentroidShiftX = 0;
                 this._touchCentroidShiftY = 0;
+                this._timeStamp = event.timeStamp;
+                this._startTime = event.timeStamp;
             } else {
                 this.touchesAddedOrRemoved();
             }
@@ -686,6 +737,7 @@ define([
             this._clientY = centroid.clientY;
             this._translationX = this._translationX * (1 - w) + dx * w;
             this._translationY = this._translationY * (1 - w) + dy * w;
+            this._timeStamp = event.timeStamp;
 
             this.touchMove(touch);
         };
