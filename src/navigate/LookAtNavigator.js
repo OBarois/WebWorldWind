@@ -50,6 +50,7 @@ define([
               Position,
               RotationRecognizer,
               TiltRecognizer,
+              Tween,
               Vec2,
               Vec3,
               WWMath) {
