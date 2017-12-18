@@ -192,9 +192,43 @@ define([
         LookAtNavigator.prototype.handlePanOrDrag3D = function (recognizer) {
             var state = recognizer.state,
                 tx = recognizer.translationX,
-                ty = recognizer.translationY,
-                thisNavigator = this,
-                thisRecognizer = recognizer;
+                ty = recognizer.translationY;
+
+            var inertialPanOrDrag3D = function (recognizer,navigator) {
+                var position = {tx:navigator.lastDegrees[0],ty:navigator.lastDegrees[1]};
+                var target = {tx:0, ty:0};
+
+                var animate = function() {
+                        
+
+                    // Apply the change in latitude and longitude to this navigator, relative to the current heading.
+                    var sinHeading = Math.sin(navigator.heading * Angle.DEGREES_TO_RADIANS),
+                        cosHeading = Math.cos(navigator.heading * Angle.DEGREES_TO_RADIANS);
+                        navigator.lookAtLocation.latitude += position.tx * cosHeading - position.ty * sinHeading;
+                        navigator.lookAtLocation.longitude += position.tx * sinHeading + position.ty * cosHeading;
+                    //thisNavigator.lastPoint.set(position.tx, position.ty);
+                    if (!navigator.endlessMove) navigator.applyLimits();
+                    navigator.worldWindow.redraw();
+
+                    recognizer.animationId = requestAnimationFrame(animate);
+                    if (!navigator.endlessMove) {
+                        TWEEN.update();
+                    }
+                }
+
+                var tween = new TWEEN.Tween(position)
+                    .to(target, 1500)
+                    .easing(TWEEN.Easing.Sinusoidal.Out)
+                    .onComplete(function(){
+                        cancelAnimationFrame(recognizer.animationId);
+                    })
+                    .start();
+
+                animate();
+
+            }
+    
+            
 
             if (state == WorldWind.BEGAN) {
                 this.lastPoint.set(0, 0);
@@ -234,43 +268,8 @@ define([
                 if (recognizer.shiftKey) {
                     this.lastDegrees[0] = 0;
                 }
-
-                var position = {tx:this.lastDegrees[0],ty:this.lastDegrees[1]};
-                var target = {tx:0, ty:0};
-
-                var tween = new TWEEN.Tween(position)
-                    .to(target, 1500)
-                    .easing(TWEEN.Easing.Sinusoidal.Out)
-                    .onComplete(function(){
-                        cancelAnimationFrame(thisRecognizer.animationId);
-                    })
-                    .start();
-
-                animate();
-                
-                function animate() {
-                    
-
-                    // Apply the change in latitude and longitude to this navigator, relative to the current heading.
-                    var sinHeading = Math.sin(thisNavigator.heading * Angle.DEGREES_TO_RADIANS),
-                        cosHeading = Math.cos(thisNavigator.heading * Angle.DEGREES_TO_RADIANS);
-                    thisNavigator.lookAtLocation.latitude += position.tx * cosHeading - position.ty * sinHeading;
-                    thisNavigator.lookAtLocation.longitude += position.tx * sinHeading + position.ty * cosHeading;
-                    //thisNavigator.lastPoint.set(position.tx, position.ty);
-                    if (!thisNavigator.endlessMove) thisNavigator.applyLimits();
-                    thisNavigator.worldWindow.redraw();
-
-                    recognizer.animationId = requestAnimationFrame(animate);
-                    if (!thisNavigator.endlessMove) {
-                        TWEEN.update();
-                    }
-
-                }
-
+                inertialPanOrDrag3D(recognizer,this);
             }
-
-
-
         };
 
         // Intentionally not documented.
@@ -279,10 +278,40 @@ define([
                 x = recognizer.clientX,
                 y = recognizer.clientY,
                 tx = recognizer.translationX,
-                ty = recognizer.translationY
-                thisNavigator = this,
-                thisRecognizer = recognizer;
+                ty = recognizer.translationY;
 
+            var inertialPanOrDrag2D = function (recognizer,navigator) {
+
+                var position = {
+                    tx:navigator.deltaLookAtLocation.latitude,
+                    ty:navigator.deltaLookAtLocation.longitude
+                };
+                var target = {tx:0, ty:0};
+
+                var animate = function() {    
+                    //console.log("tx/ty: "+position.tx+"/"+position.ty);
+                    navigator.lookAtLocation.latitude -= position.tx;
+                    navigator.lookAtLocation.longitude -= position.ty;
+                    navigator.applyLimits();
+                    navigator.worldWindow.redraw();
+                    recognizer.animationId = requestAnimationFrame(animate);
+                    if (!navigator.endlessMove) {
+                        TWEEN.update();
+                    }
+                }
+
+                var tween = new TWEEN.Tween(position)
+                    .to(target, 1500)
+                    .easing(TWEEN.Easing.Sinusoidal.Out)
+                    .onComplete(function(){
+                        cancelAnimationFrame(recognizer.animationId);
+                    })
+                    .start();
+    
+                animate();
+            }
+        
+    
             if (state == WorldWind.BEGAN) {
                 this.beginPoint.set(x, y);
                 this.lastPoint.set(x, y);
@@ -341,38 +370,8 @@ define([
 
                 // Do not trigger the inertia if they was no move at the end of the gesture 
                 if(recognizer.timeStamp - this.lastTimeStamp > 100) return;
-                
-                var position = {
-                    tx:this.deltaLookAtLocation.latitude,
-                    ty:this.deltaLookAtLocation.longitude
-                };
-                var target = {tx:0, ty:0};
-    
-                var tween = new TWEEN.Tween(position)
-                    .to(target, 1500)
-                    .easing(TWEEN.Easing.Sinusoidal.Out)
-                    .onComplete(function(){
-                        cancelAnimationFrame(thisRecognizer.animationId);
-                    })
-                    .start();
-    
-                animate();
-                
-                function animate() {
-                    
-                    //console.log("tx/ty: "+position.tx+"/"+position.ty);
-                    thisNavigator.lookAtLocation.latitude -= position.tx;
-                    thisNavigator.lookAtLocation.longitude -= position.ty;
-                    thisNavigator.applyLimits();
-                    thisNavigator.worldWindow.redraw();
-                    recognizer.animationId = requestAnimationFrame(animate);
-                    if (!thisNavigator.endlessMove) {
-                        TWEEN.update();
-                    }
-    
-                }
+                inertialPanOrDrag2D(recognizer,this);
             }
-    
         };
 
         // Intentionally not documented.
