@@ -206,8 +206,8 @@ define([
                         cosHeading = Math.cos(navigator.heading * Angle.DEGREES_TO_RADIANS);
                         navigator.lookAtLocation.latitude += position.tx * cosHeading - position.ty * sinHeading;
                         navigator.lookAtLocation.longitude += position.tx * sinHeading + position.ty * cosHeading;
-                    //thisNavigator.lastPoint.set(position.tx, position.ty);
-                    if (!navigator.endlessMove) navigator.applyLimits();
+                    
+                    navigator.applyLimits();
                     navigator.worldWindow.redraw();
 
                     recognizer.animationId = requestAnimationFrame(animate);
@@ -261,10 +261,10 @@ define([
                 this.worldWindow.redraw();
             } else if (state == WorldWind.ENDED) {
                 // Do not trigger the inertia if they was no move at the end of the gesture
-                if(recognizer.timeStamp - this.lastTimeStamp > 100) return;
+               if(recognizer.timeStamp - this.lastTimeStamp > 100) return;
 
                 // if shift key is pressed, PanOrDrag is constrained around the earth N/S axis
-                // ToDO: Does not work if globe is tilted
+                // ToDO: Does not work if globe is rotated or tilted
                 if (recognizer.shiftKey) {
                     this.lastDegrees[0] = 0;
                 }
@@ -289,7 +289,6 @@ define([
                 var target = {tx:0, ty:0};
 
                 var animate = function() {    
-                    //console.log("tx/ty: "+position.tx+"/"+position.ty);
                     navigator.lookAtLocation.latitude -= position.tx;
                     navigator.lookAtLocation.longitude -= position.ty;
                     navigator.applyLimits();
@@ -315,7 +314,7 @@ define([
             if (state == WorldWind.BEGAN) {
                 this.beginPoint.set(x, y);
                 this.lastPoint.set(x, y);
-                // If a long click occured before the move started, inertia will be endless
+                // If a long click/touch occured before the move started, inertia will be endless
                 this.endlessMove = (recognizer.timeStamp - recognizer.startTime > 1000);
             } else if (state == WorldWind.CHANGED) {
                 var x1 = this.lastPoint[0],

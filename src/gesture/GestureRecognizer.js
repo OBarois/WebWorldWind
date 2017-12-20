@@ -647,8 +647,13 @@ define([
                 this._clientStartY = event.clientY;
                 this._translationX = 0;
                 this._translationY = 0;
-                this._timeStamp = event.timeStamp;
-                this._startTime = event.timeStamp;
+                this._timeStamp = new Date();
+                this._startTime = this._timeStamp
+
+                // Stop ongoing animation for inertia
+                cancelAnimationFrame(this.animationId);
+                TWEEN.removeAll();
+ 
             }
 
             this._mouseButtonMask |= buttonBit;
@@ -670,7 +675,7 @@ define([
                 w = this._translationWeight;
             this._clientX = event.clientX;
             this._clientY = event.clientY;
-            this._timeStamp = event.timeStamp;
+            this._timeStamp = new Date();
             this._translationX = this._translationX * (1 - w) + dx * w;
             this._translationY = this._translationY * (1 - w) + dy * w;
             this.mouseMove(event);
@@ -684,6 +689,7 @@ define([
             }
 
             this._mouseButtonMask &= ~buttonBit;
+            this._timeStamp = new Date();
             this.mouseUp(event);
 
             if (this._mouseButtonMask == 0) {
@@ -705,8 +711,13 @@ define([
                 this._translationY = 0;
                 this._touchCentroidShiftX = 0;
                 this._touchCentroidShiftY = 0;
-                this._timeStamp = event.timeStamp;
-                this._startTime = event.timeStamp;
+                this._timeStamp = new Date();
+                this._startTime = this._timeStamp;
+
+                // Stop ongoing animation for inertia
+                cancelAnimationFrame(this.animationId);
+                TWEEN.removeAll();
+                
             } else {
                 this.touchesAddedOrRemoved();
             }
@@ -737,7 +748,7 @@ define([
             this._clientY = centroid.clientY;
             this._translationX = this._translationX * (1 - w) + dx * w;
             this._translationY = this._translationY * (1 - w) + dy * w;
-            this._timeStamp = event.timeStamp;
+            this._timeStamp = new Date();
 
             this.touchMove(touch);
         };
@@ -764,6 +775,7 @@ define([
             }
 
             var touch = this._touches[index];
+            this._timeStamp = new Date();
             this._touches.splice(index, 1);
             this.touchesAddedOrRemoved();
             this.touchEnd(touch);
