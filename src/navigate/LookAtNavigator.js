@@ -97,6 +97,20 @@ define([
              */
             this.range = 10e6; // TODO: Compute initial range to fit globe in viewport.
 
+            /**
+             * The minimum distance in meters from this navigator's eye point to its look-at location.
+             * @type {Number}
+             * @default 1 meter
+             */
+            this.minAllowedRange = 1;
+
+            /**
+             * The maximum distance in meters from this navigator's eye point to its look-at location.
+             * @type {Number}
+             * @default infinite
+             */
+            this.maxAllowedRange = Number.MAX_VALUE;
+
             // Development testing only. Set this to false to suppress default navigator limits on 2D globes.
             this.enable2DLimits = true;
 
@@ -482,7 +496,7 @@ define([
 
             // Clamp range to values greater than 1 in order to prevent degenerating to a first-person navigator when
             // range is zero.
-            this.range = WWMath.clamp(this.range, 1, Number.MAX_VALUE);
+            this.range = WWMath.clamp(this.range, this.minAllowedRange, this.maxAllowedRange);
 
             // Normalize heading to between -180 and +180.
             this.heading = Angle.normalizedDegrees(this.heading);
@@ -498,7 +512,7 @@ define([
                 // Clamp range to prevent more than 360 degrees of visible longitude. Assumes a 45 degree horizontal
                 // field of view.
                 var maxRange = 2 * Math.PI * this.worldWindow.globe.equatorialRadius;
-                this.range = WWMath.clamp(this.range, 1, maxRange);
+                this.range = WWMath.clamp(this.range, this.minAllowedRange, maxRange);
 
                 // Force tilt to 0 when in 2D mode to keep the viewer looking straight down.
                 this.tilt = 0;
