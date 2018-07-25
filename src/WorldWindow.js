@@ -66,20 +66,30 @@ define([
          * @throws {ArgumentError} If there is no HTML element with the specified name in the document, or if the
          * HTML canvas does not support WebGL.
          */
-        var WorldWindow = function (canvasName, elevationModel) {
+        var WorldWindow = function (canvasRef, elevationModel) {
             if (!(window.WebGLRenderingContext)) {
                 throw new ArgumentError(
                     Logger.logMessage(Logger.LEVEL_SEVERE, "WorldWindow", "constructor",
                         "The specified canvas does not support WebGL."));
             }
 
+            var canvas;
             // Attempt to get the HTML canvas with the specified name.
-            var canvas = document.getElementById(canvasName);
-            if (!canvas) {
+            if ( typeof canvasRef === 'string') {
+                canvas = document.getElementById(canvasName);
+                if (!canvas) {
+                    throw new ArgumentError(
+                        Logger.logMessage(Logger.LEVEL_SEVERE, "WorldWindow", "constructor",
+                            "The specified canvas name is not in the document."));
+                }    
+            } else canvas = canvasRef;
+            
+            if (!(canvas instanceof HTMLCanvasElement)) {
                 throw new ArgumentError(
                     Logger.logMessage(Logger.LEVEL_SEVERE, "WorldWindow", "constructor",
-                        "The specified canvas name is not in the document."));
-            }
+                        "The specified element is not a canvas."));                        
+                }
+                
 
             // Create the WebGL context associated with the HTML canvas.
             var gl = this.createContext(canvas);
