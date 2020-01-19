@@ -6,7 +6,8 @@
 
 .idea/workspace.xml
 
-build/
+build/dist/examples
+build/dist/api-doc
 
 nasaworldwind-worldwind-*.tgz
 
