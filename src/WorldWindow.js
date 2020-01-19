@@ -73,22 +73,20 @@ define([
                         "The specified canvas does not support WebGL."));
             }
 
+            // Get the actual canvas element either directly or by ID.
             var canvas;
-            // Attempt to get the HTML canvas with the specified name.
-            if ( typeof canvasRef === 'string') {
-                canvas = document.getElementById(canvasName);
+            if (canvasElem instanceof HTMLCanvasElement) {
+                canvas = canvasElem;
+            } else {
+                // Attempt to get the HTML canvas with the specified ID.
+                canvas = document.getElementById(canvasElem);
+
                 if (!canvas) {
                     throw new ArgumentError(
                         Logger.logMessage(Logger.LEVEL_SEVERE, "WorldWindow", "constructor",
-                            "The specified canvas name is not in the document."));
-                }    
-            } else canvas = canvasRef;
-            
-            if (!(canvas instanceof HTMLCanvasElement)) {
-                throw new ArgumentError(
-                    Logger.logMessage(Logger.LEVEL_SEVERE, "WorldWindow", "constructor",
-                        "The specified element is not a canvas."));                        
+                            "The specified canvas ID is not in the document."));
                 }
+            }
                 
 
             // Create the WebGL context associated with the HTML canvas.
