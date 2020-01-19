@@ -60,13 +60,14 @@ define([
          * @alias WorldWindow
          * @constructor
          * @classdesc Represents a WorldWind window for an HTML canvas.
-         * @param {String} canvasName The name assigned to the HTML canvas in the document.
+         * @param {String|HTMLCanvasElement} canvasElem The ID assigned to the HTML canvas in the document or the canvas
+         * element itself.
          * @param {ElevationModel} elevationModel An optional argument indicating the elevation model to use for the World
          * Window. If missing or null, a default elevation model is used.
-         * @throws {ArgumentError} If there is no HTML element with the specified name in the document, or if the
+         * @throws {ArgumentError} If there is no HTML element with the specified ID in the document, or if the
          * HTML canvas does not support WebGL.
          */
-        var WorldWindow = function (canvasRef, elevationModel) {
+        var WorldWindow = function (canvasElem, elevationModel) {
             if (!(window.WebGLRenderingContext)) {
                 throw new ArgumentError(
                     Logger.logMessage(Logger.LEVEL_SEVERE, "WorldWindow", "constructor",
